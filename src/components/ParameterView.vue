@@ -42,8 +42,18 @@
     <el-radio v-model="val" label="true" :disabled="readonly">true</el-radio>
   </div>
   <el-input
+    v-else-if="type.startsWith('bytes')"
+    :placeholder="readonly ? '' : 'Enter bytes. 0x...'"
+    :readonly="readonly"
+    v-model="val"
+    :maxlength="maxLength"
+    show-word-limit
+    :clearable="true"
+  >
+  </el-input>
+  <el-input
     v-else
-    :placeholder="readonly ? '' : 'Enter parameter'"
+    :placeholder="readonly ? '' : 'Enter ' + type"
     v-model="val"
     :readonly="readonly"
     :clearable="true"
@@ -62,6 +72,15 @@ export default {
       unit: "0",
       val: "",
     };
+  },
+  computed: {
+    maxLength: function () {
+      if (!this.type.startsWith("bytes")) {
+        return null;
+      }
+      var count = parseInt(this.type.replace("bytes", ""));
+      return count * 2 + 2;
+    },
   },
   methods: {
     updateVal: function () {

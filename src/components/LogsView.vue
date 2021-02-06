@@ -7,7 +7,7 @@
       v-for="(log, i) in logs"
       :key="i"
       :outputs="log.results"
-      :header="'#' + (i + 1) + '-EventName：' + log.eventName"
+      :header="'#' + (i + 1) + ': ' + log.eventName + '(event)'"
     ></OutputsView>
   </div>
 </template>

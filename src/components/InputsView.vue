@@ -69,20 +69,24 @@ export default {
     checkParameters: function (rule, value, callback) {
       let input = rule.input;
       if (value === null || value === undefined || value === "") {
-        callback("参数必填");
+        callback("Required.");
         return;
       }
       //地址类型
       if (input.type === "address") {
-        if (/^0x[a-zA-Z0-9]{40}$/.test(value)) {
+        if (/^0x[a-fA-F0-9]{40}$/.test(value)) {
           callback();
         } else {
-          callback(new Error("合约地址为0x开头的42位字符串"));
+          callback(new Error("合约地址为0x开头长度为42的16进制字符串"));
         }
         //数字类型
       } else if (input.type.indexOf("int") != -1) {
         let num = new BigNumber(value);
         if (!num.isNaN()) {
+          if (input.type.startsWith("uint") && num.isNegative()) {
+            callback("必须为正整数");
+            return;
+          }
           callback();
         } else {
           callback(new Error("不是有效的数字"));
@@ -93,6 +97,19 @@ export default {
           callback();
         } else {
           callback(new Error("不是有效的bool值"));
+        }
+        //bytes类型
+      } else if (input.type.startsWith("bytes")) {
+        let length = parseInt(input.type.replace("bytes", "")) * 2;
+        let re = new RegExp("^0x[a-fA-F0-9]{" + length + "}$");
+        if (re.test(value)) {
+          callback();
+        } else {
+          callback(
+            new Error(
+              input.type + "为0x开头长度为" + (length + 2) + "的16进制字符串"
+            )
+          );
         }
       } else {
         callback();
@@ -131,9 +148,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.input-form-item {
-  margin-bottom: 10px;
-}
-</style>
