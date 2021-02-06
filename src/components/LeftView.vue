@@ -59,12 +59,15 @@
             </el-col>
             <el-col :span="12">
               <el-popconfirm
-                title="确认删除该合约信息吗？"
+                title="Are you sure to delete this contract?"
                 v-on:confirm="onRemove(item)"
+                confirm-button-text="Confirm"
+                cancel-button-text="Cancel"
               >
                 <el-button
                   type="danger"
                   size="small"
+                  slot="reference"
                   icon="el-icon-delete"
                   circle
                 ></el-button>
@@ -121,7 +124,7 @@ export default {
     //添加合约
     onAddContract: function () {
       this.$refs.addContractDlg.title =
-        this.currentNetwork.name + ":  添加合约";
+        this.currentNetwork.name + ":  Add contract";
       this.$refs.addContractDlg.isVisible = true;
     },
     //合约添加成功
@@ -133,7 +136,7 @@ export default {
     //编辑合约
     onEdit: function (contract) {
       this.$refs.eidtContractDlg.title =
-        this.currentNetwork.name + ":  修改合约";
+        this.currentNetwork.name + ":  Edit contract";
       this.$refs.eidtContractDlg.contract = contract;
       this.$refs.eidtContractDlg.isVisible = true;
     },
@@ -171,13 +174,18 @@ export default {
       this.isConnectedMetaMask = accounts && accounts.length > 0;
     },
   },
-  created: function () {
+  created: async function () {
     this.networks = Util.networks;
     this.chainId = DB.getCurrentChainId();
     window.ethereum.on("connect", this.onConnect);
     window.ethereum.on("disconnect", this.onDisconnect);
     window.ethereum.on("chainChanged", this.onChainChanged);
     window.ethereum.on("accountsChanged", this.onAccountsChanged);
+    let account = await Util.getMetaMaskAccount();
+    this.isConnectedMetaMask = account != null;
+    if (this.isConnectedMetaMask) {
+      this.chainId = Util.getMetaMaskChainId();
+    }
   },
   watch: {
     chainId: function (newValue) {

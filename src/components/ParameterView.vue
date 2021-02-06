@@ -1,7 +1,7 @@
 <template>
   <el-input
     v-if="type === 'address'"
-    :placeholder="readonly ? '' : '请输入地址，0x...'"
+    :placeholder="readonly ? '' : 'Enter address. 0x...'"
     :readonly="readonly"
     autocomplete="organization"
     v-model="val"
@@ -11,9 +11,9 @@
   >
   </el-input>
   <el-input
-    v-else-if="type.startsWith('uint')"
+    v-else-if="type.indexOf('int') != -1"
     :readonly="readonly"
-    :placeholder="readonly ? '' : '请输入数字'"
+    :placeholder="readonly ? '' : 'Enter number.'"
     v-model="val"
     :clearable="true"
   >
@@ -21,7 +21,7 @@
       class="unit-select"
       v-model="unit"
       slot="append"
-      placeholder="请选择"
+      placeholder="Select"
       style="width: 108px"
     >
       <el-option label="Wei" value="0"></el-option>
@@ -43,7 +43,7 @@
   </div>
   <el-input
     v-else
-    :placeholder="readonly ? '' : '请输入参数'"
+    :placeholder="readonly ? '' : 'Enter parameter'"
     v-model="val"
     :readonly="readonly"
     :clearable="true"
@@ -59,13 +59,13 @@ export default {
   props: ["type", "readonly", "value"],
   data: function () {
     return {
-      unit: "18",
+      unit: "0",
       val: "",
     };
   },
   methods: {
     updateVal: function () {
-      if (this.type.startsWith("uint")) {
+      if (this.type.indexOf("int") != -1) {
         let num = new BigNumber(this.value);
         if (num.isNaN()) {
           this.val = this.value;
@@ -87,7 +87,7 @@ export default {
     },
     val: function (newVal) {
       let value = newVal;
-      if (this.type.startsWith("uint")) {
+      if (this.type.indexOf("int") != -1) {
         let num = new BigNumber(newVal);
         if (!num.isNaN()) {
           let p = parseInt(this.unit);

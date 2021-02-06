@@ -1,26 +1,26 @@
 <template>
   <div>
-    <el-dialog :title.sync="title" :visible.sync="isVisible" width="600px">
+    <el-dialog :title.sync="title" :visible.sync="isVisible" width="700px">
       <div>
         <el-form
           :model="contract"
           :rules="contractRules"
           ref="form"
-          label-width="100px"
+          label-width="150px"
         >
-          <el-form-item label="合约名称：" prop="name">
+          <el-form-item label="Alias name：" prop="name">
             <el-input
               v-model="contract.name"
-              placeholder="友好的名称，如CryptoKitties"
+              placeholder="Readable name, like CryptoKitties."
               maxlength="30"
               show-word-limit
               :clearable="true"
             ></el-input>
           </el-form-item>
-          <el-form-item label="合约地址：" prop="address">
+          <el-form-item label="Contract address：" prop="address">
             <el-input
               v-model="contract.address"
-              placeholder="合约地址，0x..."
+              placeholder="Start with 0x..."
               maxlength="42"
               show-word-limit
               :clearable="true"
@@ -30,7 +30,7 @@
             <el-input
               v-model="contract.abi"
               type="textarea"
-              placeholder="合约的ABI，json格式字符串"
+              placeholder="Contract abi. Json format string."
               :autosize="{ minRows: 4, maxRows: 8 }"
               :clearable="true"
             ></el-input>
@@ -38,8 +38,12 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="isVisible = false">取 消</el-button>
-        <el-button type="primary" v-on:click="onOk">确 定</el-button>
+        <el-button class="footer-button" @click="isVisible = false"
+          >Cancel</el-button
+        >
+        <el-button class="footer-button" type="primary" v-on:click="onOk"
+          >OK</el-button
+        >
       </span>
     </el-dialog>
   </div>
@@ -50,17 +54,17 @@ export default {
   data() {
     var checkAbi = (rule, value, callback) => {
       if (!value) {
-        return callback(new Error("请输入ABI"));
+        return callback(new Error("ABI required."));
       }
       try {
         JSON.parse(value);
         callback();
       } catch {
-        callback(new Error("ABI不是有效的json字符串"));
+        callback(new Error("ABI is not a valid JSON string."));
       }
     };
     return {
-      title: "添加合约",
+      title: "Add contract",
       isVisible: false,
       contract: {
         name: "",
@@ -69,18 +73,35 @@ export default {
       },
       contractRules: {
         name: [
-          { required: true, message: "请输入名称", trigger: "blur" },
-          { min: 4, max: 30, message: "长度在4到30个字符", trigger: "blur" },
-        ],
-        address: [
-          { required: true, message: "请输入合约地址", trigger: "blur" },
+          { required: true, message: "Alias name required.", trigger: "blur" },
           {
-            pattern: /^0x[a-zA-Z0-9]{40}$/,
-            message: "合约地址为0x开头的42位字符串",
+            min: 4,
+            max: 30,
+            message: "Alias name length is between 4 and 30.",
             trigger: "blur",
           },
         ],
-        abi: [{ validator: checkAbi, trigger: "blur" }],
+        address: [
+          {
+            required: true,
+            message: "Contract address required.",
+            trigger: "blur",
+          },
+          {
+            pattern: /^0x[a-zA-Z0-9]{40}$/,
+            message:
+              "The contract address is 42 length string starting with '0x'.",
+            trigger: "blur",
+          },
+        ],
+        abi: [
+          {
+            required: true,
+            message: "ABI required.",
+            trigger: "blur",
+          },
+          { validator: checkAbi, trigger: "blur" },
+        ],
       },
     };
   },
@@ -110,3 +131,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.footer-button {
+  width: 100px;
+}
+</style>

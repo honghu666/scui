@@ -3,15 +3,21 @@
     <el-form
       ref="form"
       label-position="left"
-      label-width="140px"
+      label-width="180px"
       :model="model"
     >
+      <div style="margin-bottom: 10px" v-if="model.parameters.length > 0">
+        <b>{{ header }}</b>
+      </div>
       <el-form-item
+        class="input-form-item"
         v-for="(input, i) in model.parameters"
         :key="i"
         :prop="'parameters.' + i + '.value'"
         :rules="input.rules"
-        :label="'Input#' + (i + 1) + '(' + input.type + '):'"
+        :label="
+          (input.name ? input.name : 'p' + (i + 1)) + '(' + input.type + '):'
+        "
       >
         <ParameterView :type="input.type" v-model="input.value"></ParameterView>
       </el-form-item>
@@ -43,6 +49,10 @@ export default {
       type: String,
       default: "提交",
     },
+    header: {
+      type: String,
+      default: "Input",
+    },
   },
   components: {
     ParameterView,
@@ -70,7 +80,7 @@ export default {
           callback(new Error("合约地址为0x开头的42位字符串"));
         }
         //数字类型
-      } else if (input.type.startsWith("uint")) {
+      } else if (input.type.indexOf("int") != -1) {
         let num = new BigNumber(value);
         if (!num.isNaN()) {
           callback();
@@ -121,3 +131,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.input-form-item {
+  margin-bottom: 10px;
+}
+</style>

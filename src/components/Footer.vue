@@ -1,44 +1,78 @@
 <template>
   <div class="footer-container">
-    <div>
-      <span class="color-gray-4" style="font-size: 13 px"
-        >All Rights reserved.</span
-      >
-    </div>
     <div class="flex-center">
-      <el-button type="primary" round style="margin-right: 40px">
-        <i class="el-icon-thumb" style="margin-right: 12px"></i>DONATE
+      <el-button
+        type="danger"
+        round
+        style="margin-right: 40px"
+        v-on:click="donate"
+        icon="el-icon-thumb"
+        class="animate__animated animate__headShake animate__slow animate__repeat-3"
+      >
+        DONATE
       </el-button>
-      <a class="color-gray-4" href="https://github.com/github">
-        <svg
-          height="20"
-          viewBox="0 0 16 16"
-          version="1.1"
-          width="20"
-          aria-hidden="true"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
-          ></path>
-        </svg>
-      </a>
+      <div style="font-size: 12px">
+        <div><b>ETH: </b>{{ ethAddress }}</div>
+        <div style="margin-top: 5px"><b>BTC: </b>{{ btcAddress }}</div>
+      </div>
     </div>
   </div>
 </template>
 
+<script>
+import Util from "../lib/util";
+
+export default {
+  computed: {
+    ethAddress: function () {
+      return this.configs.ethAddress;
+    },
+    btcAddress: function () {
+      return this.configs.btcAddress;
+    },
+  },
+  methods: {
+    donate: async function () {
+      try {
+        let account = await Util.requestMetaMaskAccount();
+        if (account == null) {
+          return;
+        }
+        var chainId = Util.getMetaMaskChainId();
+        if (chainId !== "0x1") {
+          this.$message.warning("Please switch to Mainnet chain in MetaMask.");
+          return;
+        }
+        let txHash = await window.ethereum.request({
+          method: "eth_sendTransaction",
+          params: [
+            {
+              from: account,
+              to: this.ethAddress,
+              value: "0x16345785d8a0000", //0.1eth
+              chainId: "0x1",
+            },
+          ],
+        });
+        if (txHash) {
+          this.$message.success("Thanks for donation. Have a good day.");
+        }
+      } catch (e) {
+        this.$message.error(e);
+      }
+    },
+  },
+};
+</script>
+
 <style scoped>
 .footer-container {
   height: 100%;
-  padding: 0 20px;
+  padding: 0 30px;
   display: flex;
   align-items: center;
   justify-items: center;
   justify-content: space-between;
-}
-.color-gray-4 {
-  color: #606266;
-  fill: #606266;
 }
 .flex-center {
   display: flex;

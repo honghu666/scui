@@ -1,17 +1,17 @@
 <template>
   <div>
-    <el-dialog :title.sync="title" :visible.sync="isVisible" width="600px">
+    <el-dialog :title.sync="title" :visible.sync="isVisible" width="700px">
       <div>
         <el-form
           :model="model"
           :rules="contractRules"
           ref="form"
-          label-width="100px"
+          label-width="150px"
         >
-          <el-form-item label="合约名称：" prop="name">
+          <el-form-item label="Alias name：" prop="name">
             <el-input
               v-model="model.name"
-              placeholder="友好的名称，如CryptoKitties"
+              placeholder="Readable name, like CryptoKitties."
               maxlength="30"
               show-word-limit
               :clearable="true"
@@ -20,8 +20,12 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="isVisible = false">取 消</el-button>
-        <el-button type="primary" v-on:click="onOk">确 定</el-button>
+        <el-button class="footer-button" @click="isVisible = false"
+          >Cancel</el-button
+        >
+        <el-button class="footer-button" type="primary" v-on:click="onOk"
+          >OK</el-button
+        >
       </span>
     </el-dialog>
   </div>
@@ -31,7 +35,7 @@
 export default {
   data() {
     return {
-      title: "修改合约",
+      title: "Edit contract",
       isVisible: false,
       contract: null,
       model: {
@@ -39,8 +43,13 @@ export default {
       },
       contractRules: {
         name: [
-          { required: true, message: "请输入名称", trigger: "blur" },
-          { min: 4, max: 30, message: "长度在4到30个字符", trigger: "blur" },
+          { required: true, message: "Alias name required.", trigger: "blur" },
+          {
+            min: 4,
+            max: 30,
+            message: "Alias name length is between 4 and 30.",
+            trigger: "blur",
+          },
         ],
       },
     };
@@ -67,3 +76,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.footer-button {
+  width: 100px;
+}
+</style>

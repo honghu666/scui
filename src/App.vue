@@ -31,6 +31,9 @@ export default {
   min-height: 100vh;
   display: flex;
 }
+textarea {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+}
 body {
   margin: 0;
 }

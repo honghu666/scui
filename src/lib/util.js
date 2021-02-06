@@ -1,23 +1,23 @@
 export default {
   networks: [{
     id: "0x1",
-    name: "以太坊主网络",
+    name: "Mainnet",
     network: "homestead",
   }, {
     id: "0x3",
-    name: "Ropsten测试网络",
+    name: "Ropsten testnet",
     network: "ropsten",
   }, {
     id: "0x4",
-    name: "Rinkeby测试网络",
+    name: "Rinkeby testnet",
     network: "rinkeby",
   }, {
     id: "0x5",
-    name: "Goerli测试网络",
+    name: "Goerli testnet",
     network: "goerli",
   }, {
     id: "0x2a",
-    name: "Kovan测试网络",
+    name: "Kovan testnet",
     network: "kovan",
   }],
   //获取网络浏览器的域名
