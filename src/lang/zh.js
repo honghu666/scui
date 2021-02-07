@@ -28,6 +28,7 @@ export const m = {
   bytesVerify: "{type}必须以0x开头，长度为{length}的十六进制字符串。",
   selectNetwork: "选择网络",
   delContractConfirm: "确定要删除该合约信息吗？",
+  confirm: "确定",
   fetch: "查询",
   viewOnEtherscan: "在Etherscan上查看",
   ethBanlance: "ETH余额",

@@ -4,5 +4,5 @@ module.exports = {
     port: 8080
   },
   outputDir: "docs",
-  publicPath: "/scui/"
+  //publicPath: "/scui/"
 }

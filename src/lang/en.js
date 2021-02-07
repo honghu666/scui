@@ -28,6 +28,7 @@ export const m = {
   bytesVerify: "{type} must starts with 0x and is hexadecimal string of length {length}.",
   selectNetwork: "Select network.",
   delContractConfirm: "Are you sure to delete this contract?",
+  confirm: "Confirm",
   fetch: "Fetch",
   viewOnEtherscan: "View on Etherscan",
   ethBanlance: "ETH banlance",

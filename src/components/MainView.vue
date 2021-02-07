@@ -2,8 +2,16 @@
   <div>
     <el-tabs v-model="activeTabName">
       <el-tab-pane :label="$t('m.fetch')" name="1">
-        <el-form label-width="180px" label-position="left" v-loading="isBusy">
-          <el-form-item :label="$t('m.contractAddress')">
+        <el-form
+          label-width="180px"
+          label-position="left"
+          v-loading="isBusy"
+          size="small"
+        >
+          <el-form-item
+            class="readonly-form-item"
+            :label="$t('m.contractAddress')"
+          >
             <span>{{ props.address }}</span>
             <el-tooltip
               effect="dark"
@@ -36,18 +44,24 @@
               ></el-button>
             </el-tooltip>
           </el-form-item>
-          <el-form-item :label="$t('m.ethBanlance')">
+          <el-form-item class="readonly-form-item" :label="$t('m.ethBanlance')">
             <span>{{ props.balance }}</span>
           </el-form-item>
         </el-form>
-        <el-divider v-if="constants.length > 0"></el-divider>
+        <el-divider
+          class="divider--horizontal"
+          v-if="constants.length > 0"
+          style="margin: 10px 0"
+        ></el-divider>
         <el-form
           v-if="constants.length > 0"
-          label-width="140px"
+          label-width="180px"
           label-position="left"
+          size="small"
           :class="{ hidden: constants.length === 0 }"
         >
           <el-form-item
+            class="readonly-form-item"
             v-for="(item, index) in constants"
             :key="index"
             :label="item.name"
@@ -469,5 +483,11 @@ ul {
 }
 ul li {
   padding: 4px 0;
+}
+.readonly-form-item {
+  margin-bottom: 0px;
+}
+.divider--horizontal {
+  margin: 10px 0;
 }
 </style>
