@@ -1,6 +1,16 @@
 var storage = window.localStorage;
 
 export default {
+  getLang: function () {
+    var lang = storage.getItem('lang');
+    if (lang === null) {
+      lang = "zh-CN";
+    }
+    return lang;
+  },
+  setLang: function (lang) {
+    storage.setItem('lang', lang);
+  },
   //获取当前网络Id
   getCurrentChainId: function () {
     var chainId = storage.getItem('chain-id');

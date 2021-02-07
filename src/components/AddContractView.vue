@@ -8,29 +8,29 @@
           ref="form"
           label-width="150px"
         >
-          <el-form-item label="Alias name：" prop="name">
+          <el-form-item :label="$t('m.aliasName')" prop="name">
             <el-input
               v-model="contract.name"
-              placeholder="Readable name, like CryptoKitties."
+              :placeholder="$t('m.contractNameHolder')"
               maxlength="30"
               show-word-limit
               :clearable="true"
             ></el-input>
           </el-form-item>
-          <el-form-item label="Contract address：" prop="address">
+          <el-form-item :label="$t('m.contractAddress')" prop="address">
             <el-input
               v-model="contract.address"
-              placeholder="Start with 0x..."
+              :placeholder="$t('m.contractAddressHolder')"
               maxlength="42"
               show-word-limit
               :clearable="true"
             ></el-input>
           </el-form-item>
-          <el-form-item label="ABI：" prop="abi">
+          <el-form-item :label="$t('m.abi')" prop="abi">
             <el-input
               v-model="contract.abi"
               type="textarea"
-              placeholder="Contract abi. Json format string."
+              :placeholder="$t('m.abiHolder')"
               :autosize="{ minRows: 4, maxRows: 8 }"
               :clearable="true"
             ></el-input>
@@ -38,12 +38,12 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button class="footer-button" @click="isVisible = false"
-          >Cancel</el-button
-        >
-        <el-button class="footer-button" type="primary" v-on:click="onOk"
-          >OK</el-button
-        >
+        <el-button class="footer-button" @click="isVisible = false">{{
+          $t("m.cancel")
+        }}</el-button>
+        <el-button class="footer-button" type="primary" v-on:click="onOk">{{
+          $t("m.ok")
+        }}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -54,17 +54,17 @@ export default {
   data() {
     var checkAbi = (rule, value, callback) => {
       if (!value) {
-        return callback(new Error("ABI required."));
+        return callback(new Error(this.$t("m.required", ["ABI"])));
       }
       try {
         JSON.parse(value);
         callback();
       } catch {
-        callback(new Error("ABI is not a valid JSON string."));
+        callback(new Error(this.$t("m.abiInvalid")));
       }
     };
     return {
-      title: "Add contract",
+      title: this.$t("m.addContract"),
       isVisible: false,
       contract: {
         name: "",
@@ -73,31 +73,34 @@ export default {
       },
       contractRules: {
         name: [
-          { required: true, message: "Alias name required.", trigger: "blur" },
+          {
+            required: true,
+            message: this.$t("m.required", [this.$t("m.aliasName")]),
+            trigger: "blur",
+          },
           {
             min: 4,
             max: 30,
-            message: "Alias name length is between 4 and 30.",
+            message: this.$t("m.aliasNameLengthVerify"),
             trigger: "blur",
           },
         ],
         address: [
           {
             required: true,
-            message: "Contract address required.",
+            message: this.$t("m.required", [this.$t("m.contractAddress")]),
             trigger: "blur",
           },
           {
             pattern: /^0x[a-zA-Z0-9]{40}$/,
-            message:
-              "The contract address is 42 length string starting with '0x'.",
+            message: this.$t("m.contractAddressVerify"),
             trigger: "blur",
           },
         ],
         abi: [
           {
             required: true,
-            message: "ABI required.",
+            message: this.$t("m.required", ["ABI"]),
             trigger: "blur",
           },
           { validator: checkAbi, trigger: "blur" },

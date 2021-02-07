@@ -9,7 +9,7 @@
         v-for="(output, i) in outputs"
         :key="i"
         :label="
-          (output.name ? output.name : 'o' + (i + 1)) + '(' + output.type + '):'
+          (output.name ? output.name : 'o' + (i + 1)) + '(' + output.type + ')'
         "
       >
         <ParameterView

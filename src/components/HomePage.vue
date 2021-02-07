@@ -7,7 +7,7 @@
     <el-main style="padding: 0 10px">
       <MainView v-if="contract !== null" :contract="contract" />
       <div style="font-size: 18px; opacity: 0.6; padding: 10px" v-else>
-        Please create contract first.
+        {{ $t("m.createContractFirst") }}
       </div>
     </el-main>
   </el-container>

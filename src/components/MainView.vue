@@ -1,11 +1,15 @@
 <template>
   <div>
     <el-tabs v-model="activeTabName">
-      <el-tab-pane label="Fetch" name="1">
+      <el-tab-pane :label="$t('m.fetch')" name="1">
         <el-form label-width="180px" label-position="left" v-loading="isBusy">
-          <el-form-item label="Contract address:">
+          <el-form-item :label="$t('m.contractAddress')">
             <span>{{ props.address }}</span>
-            <el-tooltip effect="dark" content="Copy address" placement="top">
+            <el-tooltip
+              effect="dark"
+              :content="$t('m.copyAddress')"
+              placement="top"
+            >
               <el-button
                 type="primary"
                 style="margin-left: 10px"
@@ -19,7 +23,7 @@
             </el-tooltip>
             <el-tooltip
               effect="dark"
-              content="View on Etherscan"
+              :content="$t('m.viewOnEtherscan')"
               placement="top"
             >
               <el-button
@@ -32,7 +36,7 @@
               ></el-button>
             </el-tooltip>
           </el-form-item>
-          <el-form-item label="ETH banlance：">
+          <el-form-item :label="$t('m.ethBanlance')">
             <span>{{ props.balance }}</span>
           </el-form-item>
         </el-form>
@@ -46,7 +50,7 @@
           <el-form-item
             v-for="(item, index) in constants"
             :key="index"
-            :label="item.name + '：'"
+            :label="item.name"
           >
             <span>{{ item.value }}</span>
           </el-form-item>
@@ -64,8 +68,9 @@
             <el-row v-loading="item.isBusy" :gutter="20">
               <el-col :span="12">
                 <InputsView
+                  :header="$t('m.inputs')"
                   :inputs="item.inputs"
-                  buttonText="Fetch"
+                  :buttonText="$t('m.fetch')"
                   v-on:submit="fetch(item)"
                 ></InputsView>
               </el-col>
@@ -73,13 +78,17 @@
                 <div v-if="item.error !== null">
                   <span class="error">*{{ item.error }}</span>
                 </div>
-                <OutputsView v-else :outputs="item.outputs"></OutputsView>
+                <OutputsView
+                  v-else
+                  :header="$t('m.outputs')"
+                  :outputs="item.outputs"
+                ></OutputsView>
               </el-col>
             </el-row>
           </el-collapse-item>
         </el-collapse>
       </el-tab-pane>
-      <el-tab-pane label="Call" name="2">
+      <el-tab-pane :label="$t('m.call')" name="2">
         <el-collapse>
           <el-collapse-item
             style="font-size: 14px"
@@ -93,8 +102,9 @@
             <el-row v-loading="item.isBusy" :gutter="20">
               <el-col :span="12">
                 <InputsView
+                  :header="$t('m.inputs')"
                   :inputs="item.inputs"
-                  buttonText="Call"
+                  :buttonText="$t('m.call')"
                   v-on:submit="execute(item)"
                 ></InputsView>
               </el-col>
@@ -112,7 +122,7 @@
                       element-loading-background="rgba(0, 0, 0, 0)"
                       type=""
                     >
-                      Pending
+                      {{ $t("m.pending") }}
                     </el-tag>
                     <el-tag
                       v-if="item.tx.status === 1"
@@ -138,21 +148,23 @@
                           ? ">=3"
                           : item.tx.confirmations
                       }}
-                      Block Confirmations
+                      {{ $t("m.blockConfirmations") }}
                     </el-tag>
                     <el-link
                       type="primary"
                       :href="item.txUrl"
                       :target="item.txUrl"
                       :underline="false"
-                      >View transaction on Etherscan</el-link
+                      >{{ $t("m.viewTransactionOnEtherscan") }}</el-link
                     >
                   </div>
                   <LogsView
                     :logs="item.tx.logs"
                     v-if="item.tx.logs.length > 0"
                   ></LogsView>
-                  <div v-else-if="item.txUrl !== null"><b>No logs.</b></div>
+                  <div v-else-if="item.txUrl !== null">
+                    <b>{{ $t("m.noLogs") }}</b>
+                  </div>
                 </div>
               </el-col>
             </el-row>
@@ -220,11 +232,11 @@ export default {
     copy: function (className) {
       var clipboard = new this.Clipboard(className);
       clipboard.on("success", () => {
-        this.$message.success("Copy success!");
+        this.$message.success(this.$t("m.copySuccess"));
         clipboard.destroy();
       });
       clipboard.on("error", () => {
-        this.$message.error("Automatic copy is not supported by the browser.");
+        this.$message.error(this.$t("m.copyErrorMsg"));
         clipboard.destroy();
       });
     },
@@ -234,7 +246,7 @@ export default {
         let url = domain + "/address/" + address;
         window.open(url, address);
       } else {
-        this.$message.warn("Can't open Etherscan.");
+        this.$message.warn(this.$t("m.cannotOpenEtherscan"));
       }
     },
     //查询合约数据

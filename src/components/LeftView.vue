@@ -4,7 +4,7 @@
       <el-col :span="16">
         <el-select
           v-model="chainId"
-          placeholder="请选择网络"
+          :placeholder="$t('m.selectNetwork')"
           :disabled="isConnectedMetaMask"
         >
           <el-option
@@ -27,7 +27,7 @@
     <span
       v-if="isConnectedMetaMask"
       style="font-size: 10px; opacity: 0.8; margin-left: 4px; color: red"
-      >*Please switch chain in MetaMask.</span
+      >{{ $t("m.switchChain") }}</span
     >
     <ul>
       <li
@@ -59,10 +59,10 @@
             </el-col>
             <el-col :span="12">
               <el-popconfirm
-                title="Are you sure to delete this contract?"
+                :title="$t('m.delContractConfirm')"
                 v-on:confirm="onRemove(item)"
-                confirm-button-text="Confirm"
-                cancel-button-text="Cancel"
+                :confirm-button-text="$t('m.confirm')"
+                :cancel-button-text="$t('m.cancel')"
               >
                 <el-button
                   type="danger"
@@ -124,7 +124,7 @@ export default {
     //添加合约
     onAddContract: function () {
       this.$refs.addContractDlg.title =
-        this.currentNetwork.name + ":  Add contract";
+        this.currentNetwork.name + ":  " + this.$t("m.addContract");
       this.$refs.addContractDlg.isVisible = true;
     },
     //合约添加成功
@@ -132,11 +132,12 @@ export default {
       contract.chainId = this.chainId;
       DB.addContract(this.chainId, contract);
       this.contracts.push(contract);
+      this.activeContract = contract;
     },
     //编辑合约
     onEdit: function (contract) {
       this.$refs.eidtContractDlg.title =
-        this.currentNetwork.name + ":  Edit contract";
+        this.currentNetwork.name + ":  " + this.$t("m.editContract");
       this.$refs.eidtContractDlg.contract = contract;
       this.$refs.eidtContractDlg.isVisible = true;
     },

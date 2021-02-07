@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="margin-bottom: 10px">
-      <b>Logs</b>
+      <b>{{ $t("m.logs") }}</b>
     </div>
     <OutputsView
       v-for="(log, i) in logs"

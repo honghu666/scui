@@ -5,23 +5,26 @@ export default {
     network: "homestead",
   }, {
     id: "0x3",
-    name: "Ropsten testnet",
+    name: "Ropsten",
     network: "ropsten",
   }, {
     id: "0x4",
-    name: "Rinkeby testnet",
+    name: "Rinkeby",
     network: "rinkeby",
   }, {
     id: "0x5",
-    name: "Goerli testnet",
+    name: "Goerli",
     network: "goerli",
   }, {
     id: "0x2a",
-    name: "Kovan testnet",
+    name: "Kovan",
     network: "kovan",
   }],
   //获取网络浏览器的域名
   getChainDomain: function (chainId) {
+    if (chainId === "0x1") {
+      return "https://etherscan.io/";
+    }
     for (let i in this.networks) {
       let network = this.networks[i];
       if (network.id === chainId) {

@@ -8,10 +8,10 @@
           ref="form"
           label-width="150px"
         >
-          <el-form-item label="Alias name：" prop="name">
+          <el-form-item :label="$t('m.aliasName')" prop="name">
             <el-input
               v-model="model.name"
-              placeholder="Readable name, like CryptoKitties."
+              :placeholder="$t('m.contractNameHolder')"
               maxlength="30"
               show-word-limit
               :clearable="true"
@@ -20,12 +20,12 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button class="footer-button" @click="isVisible = false"
-          >Cancel</el-button
-        >
-        <el-button class="footer-button" type="primary" v-on:click="onOk"
-          >OK</el-button
-        >
+        <el-button class="footer-button" @click="isVisible = false">{{
+          $t("m.cancel")
+        }}</el-button>
+        <el-button class="footer-button" type="primary" v-on:click="onOk">{{
+          $t("m.ok")
+        }}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -35,7 +35,7 @@
 export default {
   data() {
     return {
-      title: "Edit contract",
+      title: this.$t("m.editContract"),
       isVisible: false,
       contract: null,
       model: {
@@ -43,11 +43,15 @@ export default {
       },
       contractRules: {
         name: [
-          { required: true, message: "Alias name required.", trigger: "blur" },
+          {
+            required: true,
+            message: this.$t("m.required", [this.$t("m.aliasName")]),
+            trigger: "blur",
+          },
           {
             min: 4,
             max: 30,
-            message: "Alias name length is between 4 and 30.",
+            message: this.$t("m.aliasNameLengthVerify"),
             trigger: "blur",
           },
         ],

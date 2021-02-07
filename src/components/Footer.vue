@@ -9,7 +9,7 @@
         icon="el-icon-thumb"
         class="animate__animated animate__headShake animate__slow animate__repeat-3"
       >
-        DONATE
+        {{ $t("m.donate") }}
       </el-button>
       <div style="font-size: 12px">
         <div><b>ETH: </b>{{ ethAddress }}</div>
@@ -40,7 +40,7 @@ export default {
         }
         var chainId = Util.getMetaMaskChainId();
         if (chainId !== "0x1") {
-          this.$message.warning("Please switch to Mainnet chain in MetaMask.");
+          this.$message.warning(this.$t("m.switchMainChainMsg"));
           return;
         }
         let txHash = await window.ethereum.request({
@@ -55,7 +55,7 @@ export default {
           ],
         });
         if (txHash) {
-          this.$message.success("Thanks for donation. Have a good day.");
+          this.$message.success(this.$t("m.donateMsg"));
         }
       } catch (e) {
         this.$message.error(e);

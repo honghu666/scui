@@ -1,7 +1,7 @@
 <template>
   <el-input
     v-if="type === 'address'"
-    :placeholder="readonly ? '' : 'Enter address. 0x...'"
+    :placeholder="readonly ? '' : $t('m.contractAddressHolder')"
     :readonly="readonly"
     autocomplete="organization"
     v-model="val"
@@ -13,7 +13,7 @@
   <el-input
     v-else-if="type.indexOf('int') != -1"
     :readonly="readonly"
-    :placeholder="readonly ? '' : 'Enter number.'"
+    :placeholder="readonly ? '' : $t('m.numberHolder')"
     v-model="val"
     :clearable="true"
   >
@@ -21,7 +21,7 @@
       class="unit-select"
       v-model="unit"
       slot="append"
-      placeholder="Select"
+      :placeholder="$t('m.select')"
       style="width: 108px"
     >
       <el-option label="Wei" value="0"></el-option>
@@ -43,7 +43,7 @@
   </div>
   <el-input
     v-else-if="type.startsWith('bytes')"
-    :placeholder="readonly ? '' : 'Enter bytes. 0x...'"
+    :placeholder="readonly ? '' : $t('m.bytesHolder')"
     :readonly="readonly"
     v-model="val"
     :maxlength="maxLength"
@@ -52,8 +52,20 @@
   >
   </el-input>
   <el-input
+    v-else-if="type == 'tuple'"
+    :placeholder="readonly ? '' : $t('m.enterType', [type])"
+    :readonly="readonly"
+    v-model="val"
+    :maxlength="maxLength"
+    show-word-limit
+    :clearable="true"
+    type="textarea"
+    :autosize="true"
+  >
+  </el-input>
+  <el-input
     v-else
-    :placeholder="readonly ? '' : 'Enter ' + type"
+    :placeholder="readonly ? '' : $t('m.enterType', [type])"
     v-model="val"
     :readonly="readonly"
     :clearable="true"
@@ -92,6 +104,8 @@ export default {
           let p = parseInt(this.unit);
           this.val = num.dividedBy(new BigNumber(10).pow(p)).toFixed();
         }
+      } else if (this.type == "tuple") {
+        this.val = this.value.replace(",", "\n");
       } else {
         this.val = this.value;
       }
@@ -112,6 +126,8 @@ export default {
           let p = parseInt(this.unit);
           value = num.multipliedBy(new BigNumber(10).pow(p)).toFixed();
         }
+      } else if (this.type === "tuple") {
+        value = newVal.replace("\n", ",");
       }
       this.$emit("input", value);
     },

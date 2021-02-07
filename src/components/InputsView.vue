@@ -16,7 +16,7 @@
         :prop="'parameters.' + i + '.value'"
         :rules="input.rules"
         :label="
-          (input.name ? input.name : 'p' + (i + 1)) + '(' + input.type + '):'
+          (input.name ? input.name : 'p' + (i + 1)) + '(' + input.type + ')'
         "
       >
         <ParameterView :type="input.type" v-model="input.value"></ParameterView>
@@ -47,11 +47,11 @@ export default {
     },
     buttonText: {
       type: String,
-      default: "提交",
+      default: "Submit",
     },
     header: {
       type: String,
-      default: "Input",
+      default: "Inputs",
     },
   },
   components: {
@@ -69,7 +69,7 @@ export default {
     checkParameters: function (rule, value, callback) {
       let input = rule.input;
       if (value === null || value === undefined || value === "") {
-        callback("Required.");
+        callback(this.$t("m.required", [""]));
         return;
       }
       //地址类型
@@ -77,26 +77,26 @@ export default {
         if (/^0x[a-fA-F0-9]{40}$/.test(value)) {
           callback();
         } else {
-          callback(new Error("合约地址为0x开头长度为42的16进制字符串"));
+          callback(new Error(this.$t("m.contractAddressVerify")));
         }
         //数字类型
       } else if (input.type.indexOf("int") != -1) {
         let num = new BigNumber(value);
         if (!num.isNaN()) {
           if (input.type.startsWith("uint") && num.isNegative()) {
-            callback("必须为正整数");
+            callback(this.$t("m.mustUint"));
             return;
           }
           callback();
         } else {
-          callback(new Error("不是有效的数字"));
+          callback(new Error(this.$t("m.invalidNumber")));
         }
         //bool类型
       } else if (input.type === "bool") {
         if (value === "true" || value === "fasle") {
           callback();
         } else {
-          callback(new Error("不是有效的bool值"));
+          callback(new Error(this.$("m.invalidBool")));
         }
         //bytes类型
       } else if (input.type.startsWith("bytes")) {
@@ -107,7 +107,7 @@ export default {
         } else {
           callback(
             new Error(
-              input.type + "为0x开头长度为" + (length + 2) + "的16进制字符串"
+              this.$t("m.bytesVerify", { type: input.type, length: length + 2 })
             )
           );
         }

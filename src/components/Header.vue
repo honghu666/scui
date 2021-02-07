@@ -9,7 +9,7 @@
   >
     <span style="margin: 0 30px; font-size: 18px; font-weight: 600">SCUI</span>
     <el-menu
-      style="flex: 1"
+      style="flex: 1; border-width: 0"
       :default-active="activeIndex"
       mode="horizontal"
       :router="true"
@@ -17,9 +17,13 @@
       background-color="#409eff"
       active-text-color="#fff"
     >
-      <el-menu-item index="/home">Home </el-menu-item>
-      <el-menu-item index="/about">About </el-menu-item>
+      <el-menu-item index="/home">{{ $t("m.home") }} </el-menu-item>
+      <el-menu-item index="/about">{{ $t("m.about") }} </el-menu-item>
     </el-menu>
+    <el-select class="lang-select" v-model="lang" size="small">
+      <el-option label="简体中文" value="zh-CN"> </el-option>
+      <el-option label="English" value="en-US"> </el-option>
+    </el-select>
     <a
       style="fill: #3a3a3a; margin-right: 20px"
       target="contract-interaction"
@@ -42,14 +46,43 @@
 </template>
 
 <script>
+import Db from "../lib/db";
+
 export default {
   data: function () {
     return {
       activeIndex: "/home",
+      lang: "zh-CN",
     };
   },
   created: function () {
     this.activeIndex = this.$route.path;
+    this.lang = this.$i18n.locale;
+  },
+  watch: {
+    lang: function () {
+      this.$i18n.locale = this.lang;
+      Db.setLang(this.lang);
+    },
   },
 };
 </script>
+
+<style>
+.lang-select {
+  margin-right: 20px;
+  text-align: right;
+  width: 100px;
+}
+.lang-select input {
+  background-color: transparent;
+  border-color: transparent;
+  border-width: 0;
+  color: white;
+  text-align: right;
+}
+
+.lang-select .el-select__caret {
+  color: white;
+}
+</style>
