@@ -2,13 +2,11 @@
 
 ## 概述
 
-![screenshoot1](assets\screenshoot1.png)
+![screenshoot1](./assets/screenshoot1.png)
 
 ***用Vue编写的以太坊智能合约交互界面。***
 
-网站地址：
-
-[https://honghu666.github.io/scui]: https://honghu666.github.io/scui
+网站地址：[https://honghu666.github.io/scui](https://honghu666.github.io/scui)
 
 ## 特性
 
