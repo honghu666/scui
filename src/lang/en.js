@@ -36,7 +36,7 @@ export const m = {
   copyAddress: "Copy address",
   copySuccess: "Copy success.",
   copyErrorMsg: "Automatic copy is not supported by the browser.",
-  cannotOpenEtherscan: "Can't open Etherscan.",
+  cannotOpenEtherscan: "Can't view on Etherscan.",
   numberHolder: "Enter number.",
   select: "Select",
   bytesHolder: "Enter bytes. 0x...",

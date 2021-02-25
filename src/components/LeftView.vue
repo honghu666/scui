@@ -3,6 +3,7 @@
     <el-row>
       <el-col :span="16">
         <el-select
+          ref="networkSelect"
           v-model="chainId"
           :placeholder="$t('m.selectNetwork')"
           :disabled="isConnectedMetaMask"
@@ -13,7 +14,42 @@
             :label="item.name"
             :value="item.id"
           >
+            <!-- <i
+              class="el-icon-s-opportunity"
+              style="margin-right: 4px"
+              v-if="item.address"
+            ></i> -->
+            <span>{{ item.name }}</span>
+            <span
+              style="
+                opacity: 0.4;
+                color: #8492a6;
+                font-size: 10px;
+                margin-left: 20px;
+                font-weight: normal;
+                float: right;
+              "
+              v-if="item.address"
+              >({{ item.address }})</span
+            >
           </el-option>
+          <div
+            style="
+              margin: 4px 0;
+              width: 100%;
+              height: 1px;
+              background-color: #dcdfe6;
+            "
+          ></div>
+          <div style="display: flex">
+            <el-button
+              type="primary"
+              style="flex: 1; margin: 4px 12px"
+              icon="el-icon-setting"
+              v-on:click="onSetCustomProviders"
+              >自定义节点</el-button
+            >
+          </div>
         </el-select>
       </el-col>
       <el-col :span="8" style="text-align: center">
@@ -78,13 +114,18 @@
       </li>
     </ul>
     <AddContractView ref="addContractDlg" v-on:ok="onAddContractOk" />
-    <EditContractView ref="eidtContractDlg" v-on:ok="onEditContractOk" />
+    <EditContractView ref="editContractDlg" v-on:ok="onEditContractOk" />
+    <CustomProviderView
+      ref="customProviderView"
+      v-on:closed="onCustomProvidersDlgClosed"
+    />
   </div>
 </template>
 
 <script>
-import AddContractView from "../components/AddContractView";
-import EditContractView from "../components/EditContractView";
+import AddContractView from "./AddContractView";
+import EditContractView from "./EditContractView";
+import CustomProviderView from "./CustomProviderView";
 import db from "../lib/db.js";
 import DB from "../lib/db.js";
 import Util from "../lib/util";
@@ -94,6 +135,7 @@ export default {
   components: {
     AddContractView,
     EditContractView,
+    CustomProviderView,
   },
   data: function () {
     return {
@@ -136,10 +178,10 @@ export default {
     },
     //编辑合约
     onEdit: function (contract) {
-      this.$refs.eidtContractDlg.title =
+      this.$refs.editContractDlg.title =
         this.currentNetwork.name + ":  " + this.$t("m.editContract");
-      this.$refs.eidtContractDlg.contract = contract;
-      this.$refs.eidtContractDlg.isVisible = true;
+      this.$refs.editContractDlg.contract = contract;
+      this.$refs.editContractDlg.isVisible = true;
     },
     //合约编辑成功
     onEditContractOk: function (contract) {
@@ -155,6 +197,21 @@ export default {
         this.activeContract =
           this.contracts.length > 0 ? this.contracts[0] : null;
       }
+    },
+    //设置自定义节点
+    onSetCustomProviders: function () {
+      this.$refs.networkSelect.blur();
+      this.$refs.customProviderView.isVisible = true;
+    },
+    //自定义节点窗口关闭
+    onCustomProvidersDlgClosed: function () {
+      let networks = Util.networks.concat();
+      let customNodes = DB.getCustomNodes();
+      customNodes.forEach((t) => {
+        t.id = t.address;
+        networks.push(t);
+      });
+      this.networks = networks;
     },
     onConnect: async function (connectInfo) {
       console.log("Metamask connected.");
@@ -176,7 +233,13 @@ export default {
     },
   },
   created: async function () {
-    this.networks = Util.networks;
+    let networks = Util.networks.concat();
+    let customNodes = DB.getCustomNodes();
+    customNodes.forEach((t) => {
+      t.id = t.address;
+      networks.push(t);
+    });
+    this.networks = networks;
     this.chainId = DB.getCurrentChainId();
     window.ethereum.on("connect", this.onConnect);
     window.ethereum.on("disconnect", this.onDisconnect);

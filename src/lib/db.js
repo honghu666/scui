@@ -77,5 +77,29 @@ export default {
     addrList = addrList.filter(item => item !== contract.address);
     storage.setItem(chainId, JSON.stringify(addrList));
     storage.removeItem(contract.address);
+  },
+  //添加自定义节点
+  addCustomNode: function (name, address) {
+    let nodes = this.getCustomNodes();
+    nodes.push({
+      name: name,
+      address: address
+    });
+    storage.setItem('custom-nodes', JSON.stringify(nodes));
+  },
+  //获取自定义节点
+  getCustomNodes: function () {
+    var nodes = storage.getItem("custom-nodes");
+    if (nodes === null)
+      nodes = [];
+    else
+      nodes = JSON.parse(nodes);
+    return nodes;
+  },
+  //删除自定义节点
+  deleteCustomNode: function (address) {
+    let nodes = this.getCustomNodes();
+    nodes = nodes.filter(t => t.address !== address);
+    storage.setItem('custom-nodes', JSON.stringify(nodes));
   }
 }

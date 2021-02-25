@@ -36,7 +36,7 @@ export const m = {
   copyAddress: "复制地址",
   copySuccess: "复制成功！",
   copyErrorMsg: "该浏览器不支持自动复制。",
-  cannotOpenEtherscan: "无法打开Etherscan。",
+  cannotOpenEtherscan: "无法在Etherscan上查看。",
   numberHolder: "输入数字",
   select: "选择",
   bytesHolder: "输入Bytes。0x...",

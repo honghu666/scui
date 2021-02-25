@@ -93,10 +93,10 @@ export default {
         }
         //bool类型
       } else if (input.type === "bool") {
-        if (value === "true" || value === "fasle") {
+        if (value === "true" || value === "false") {
           callback();
         } else {
-          callback(new Error(this.$("m.invalidBool")));
+          callback(new Error(this.$t("m.invalidBool")));
         }
         //bytes类型
       } else if (input.type.startsWith("bytes")) {

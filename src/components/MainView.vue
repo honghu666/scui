@@ -213,6 +213,7 @@ export default {
       abi: null,
       ethContract: null,
       isBusy: false,
+      isCustomNode: false,
       props: {
         address: "",
         balance: "",
@@ -260,7 +261,7 @@ export default {
         let url = domain + "/address/" + address;
         window.open(url, address);
       } else {
-        this.$message.warn(this.$t("m.cannotOpenEtherscan"));
+        this.$message.warning(this.$t("m.cannotOpenEtherscan"));
       }
     },
     //查询合约数据
@@ -296,52 +297,64 @@ export default {
         fragment.error = null;
         let f = this.abi.fragments.filter((t) => t.name == fragment.name);
         let data = this.abi.encodeFunctionData(f[0], methodParams);
-        let ethereum = window.ethereum;
-        let account = await Util.requestMetaMaskAccount();
-        if (account === null) {
-          return;
+        let txHash = null;
+        let transactionRequest = {
+          to: this.contract.address,
+          data: data,
+          value: valueInput
+            ? new BigNumber(valueInput.value).toString(16)
+            : "0x0",
+        };
+        if (this.isCustomNode) {
+          //找到第一个账户余额大于0.001eth的账户
+          let accounts = await this.provider.listAccounts();
+          for (let i = 0; i < accounts.length; i++) {
+            let balance = await this.provider.getBalance(accounts[i]);
+            if (balance > BigNumber(1e15)) {
+              let signer = this.provider.getSigner(accounts[i]);
+              transactionRequest.from = accounts[i];
+              let respones = await signer.sendTransaction(transactionRequest);
+              txHash = respones.hash;
+              break;
+            }
+          }
+        } else {
+          let ethereum = window.ethereum;
+          let account = await Util.requestMetaMaskAccount();
+          if (account === null) {
+            return;
+          }
+          transactionRequest.from = account;
+          txHash = await ethereum.request({
+            method: "eth_sendTransaction",
+            params: [transactionRequest],
+          });
         }
-        let txHash = await ethereum.request({
-          method: "eth_sendTransaction",
-          params: [
-            {
-              from: account,
-              to: this.contract.address,
-              data: data,
-              value: valueInput
-                ? new BigNumber(valueInput.value).toString(16)
-                : "0",
-            },
-          ],
-        });
-        fragment.isBusy = false;
         let domain = Util.getChainDomain(this.contract.chainId);
         if (domain) {
           fragment.txUrl = domain + "/tx/" + txHash;
         } else {
           fragment.txUrl = null;
         }
-        for (let i = 1; i < 4; i++) {
-          let txReceipt = await this.provider.waitForTransaction(txHash, i);
-          fragment.tx.confirmations = txReceipt.confirmations;
-          fragment.tx.status = txReceipt.status;
-          fragment.tx.logs = txReceipt.logs.map((t) => {
-            let r = this.abi.parseLog(t);
-            let results = [];
-            for (let j in r.args) {
-              let input = r.eventFragment.inputs[j];
-              results.push({
-                name: input.name,
-                type: input.type,
-                value: r.args[j].toString(),
-              });
-            }
-            return {
-              eventName: r.name,
-              results: results,
-            };
-          });
-        }
+        let txReceipt = await this.provider.waitForTransaction(txHash, 1);
+        fragment.tx.confirmations = txReceipt.confirmations;
+        fragment.tx.status = txReceipt.status;
+        fragment.tx.logs = txReceipt.logs.map((t) => {
+          let r = this.abi.parseLog(t);
+          let results = [];
+          for (let j in r.args) {
+            let input = r.eventFragment.inputs[j];
+            results.push({
+              name: input.name,
+              type: input.type,
+              value: r.args[j].toString(),
+            });
+          }
+          return {
+            eventName: r.name,
+            results: results,
+          };
+        });
         fragment.isMining = false;
         fragment.error = null;
       } catch (e) {
@@ -352,94 +365,123 @@ export default {
     },
     //获取合约方法信息
     getMethods: function (fragments) {
-      return fragments.map(function (item) {
-        let inputs = (item.inputs ?? []).map(function (input) {
-          return {
-            type: input.type,
-            name: input.name,
-            value: "",
-          };
-        });
-        if (item.payable === true) {
-          inputs.push({
-            type: "uint256",
-            name: "ETH value",
-            payable: true,
-            value: 0,
+      return fragments
+        .map(function (item) {
+          let inputs = (item.inputs ?? []).map(function (input) {
+            return {
+              type: input.type,
+              name: input.name,
+              value: "",
+            };
           });
-        }
-        let outputs = (item.outputs ?? []).map(function (output) {
+          if (item.payable === true) {
+            inputs.push({
+              type: "uint256",
+              name: "ETH value",
+              payable: true,
+              value: 0,
+            });
+          }
+          let outputs = (item.outputs ?? []).map(function (output) {
+            return {
+              type: output.type,
+              name: output.name,
+              value: "",
+            };
+          });
           return {
-            type: output.type,
-            name: output.name,
-            value: "",
+            name: item.name,
+            type: item.type,
+            error: null,
+            txUrl: null,
+            isBusy: false,
+            tx: {
+              confirmations: 0,
+              status: null,
+              logs: [],
+            },
+            inputs: inputs,
+            outputs: outputs,
           };
+        })
+        .sort(function (a, b) {
+          return a.name.localeCompare(b.name);
         });
-        return {
-          name: item.name,
-          type: item.type,
-          error: null,
-          txUrl: null,
-          isBusy: false,
-          tx: {
-            confirmations: 0,
-            status: null,
-            logs: [],
-          },
-          inputs: inputs,
-          outputs: outputs,
-        };
-      });
     },
     //选中的合约更改时执行
     onContractChanged: async function (contract) {
-      this.calls = [];
-      this.operations = [];
-      this.constants = [];
-      this.props.balance = "0";
-      if (contract == null) {
-        return;
-      }
-      let network = Util.getNetwork(contract.chainId);
-      if (network == null) {
-        return;
-      }
-      this.abi = new ethers.utils.Interface(contract.abi);
-      this.props.address = contract.address;
-      this.provider = ethers.getDefaultProvider(network.network);
-      this.ethContract = new ethers.Contract(
-        contract.address,
-        this.abi,
-        this.provider
-      );
-      this.isBusy = true;
-      //组织调用相关的函数信息
-      let calls = this.abi.fragments.filter(
-        (item) => item.constant === true && item.inputs.length > 0
-      );
-      this.calls = this.getMethods(calls);
-      //组织操作相关的函数信息
-      let operations = this.abi.fragments.filter(
-        (item) => item.constant === false
-      );
-      this.operations = this.getMethods(operations);
-
-      //获取余额
-      let balance = await this.provider.getBalance(contract.address);
-      this.props.balance = ethers.utils.formatEther(balance);
-      //获取常量的值
-      this.constants = [];
-      for (let i in this.abi.fragments) {
-        let f = this.abi.fragments[i];
-        if (f.constant === true && f.inputs.length === 0) {
-          let value = await this.ethContract.functions[f.name].call();
-          this.constants.push({
-            name: f.name,
-            value: value.toString(),
-          });
+      try {
+        this.calls = [];
+        this.operations = [];
+        this.constants = [];
+        this.props.balance = "0";
+        if (contract == null) {
+          return;
         }
+        if (contract.chainId.startsWith("0x")) {
+          let network = Util.getNetwork(contract.chainId);
+          if (network == null) {
+            return;
+          }
+          this.provider = ethers.getDefaultProvider(network.network);
+          this.isCustomNode = false;
+        } else {
+          let address = contract.chainId;
+          this.provider = new ethers.providers.JsonRpcProvider(address);
+          this.isCustomNode = true;
+        }
+        this.abi = new ethers.utils.Interface(contract.abi);
+        this.props.address = contract.address;
+        this.ethContract = new ethers.Contract(
+          contract.address,
+          this.abi,
+          this.provider
+        );
+        //组织调用相关的函数信息
+        let calls = this.abi.fragments.filter(
+          (item) => item.constant === true && item.inputs.length > 0
+        );
+        this.calls = this.getMethods(calls);
+        //组织操作相关的函数信息
+        let operations = this.abi.fragments.filter(
+          (item) => item.constant === false
+        );
+        this.operations = this.getMethods(operations);
+
+        //获取常量的值
+        this.constants = [];
+        let tasks = [this.provider.getBalance(contract.address)];
+        let names = ["balance"];
+        for (let i in this.abi.fragments) {
+          let f = this.abi.fragments[i];
+          if (f.constant === true && f.inputs.length === 0) {
+            tasks.push(this.ethContract.functions[f.name].call());
+            names.push(f.name);
+          }
+        }
+        this.isBusy = true;
+        let results = await Promise.all(tasks);
+        this.isBusy = false;
+        for (let i in results) {
+          if (i === 0) {
+            //获取余额
+            this.props.balance = ethers.utils.formatEther(results[i]);
+          } else {
+            this.constants.push({
+              name: names[i],
+              value: results[i].toString(),
+            });
+          }
+        }
+        this.constants.sort(function (a, b) {
+          return a.name.localeCompare(b.name);
+        });
+      } catch (e) {
+        console.log(e);
+        this.$message.error(e.toString());
+      } finally {
+        this.isBusy = false;
       }
-      this.isBusy = false;
     },
   },
   created: async function () {
